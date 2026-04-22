@@ -23,80 +23,60 @@
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             text-align: center;
-            margin-top: 50px;
         }
         h1 { color: #3498db; }
-        .radar-box {
-            height: 150px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
         .radar {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             border-radius: 50%;
             border: 2px solid #3498db;
+            margin: 20px auto;
             position: relative;
             animation: pulse 2s infinite;
         }
         @keyframes pulse {
-            0% { transform: scale(0.8); opacity: 1; }
-            100% { transform: scale(2.5); opacity: 0; }
+            0% { transform: scale(0.9); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
         }
         .btn {
             background-color: #3498db;
             color: white;
             border: none;
-            padding: 15px 40px;
+            padding: 15px 30px;
             border-radius: 30px;
             font-size: 18px;
             font-weight: bold;
             cursor: pointer;
             transition: 0.3s;
             margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
         }
-        .btn:hover { background-color: #2980b9; transform: translateY(-2px); }
+        .btn:hover { background-color: #2980b9; }
         #deviceList {
             text-align: left;
             margin-top: 20px;
-            width: 100%;
         }
         .device-card {
             background: #2c3e50;
             padding: 15px;
             border-radius: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             border-left: 5px solid #3498db;
-            animation: slideIn 0.5s ease-out;
         }
-        @keyframes slideIn {
-            from { transform: translateX(-20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        .device-name { font-weight: bold; font-size: 18px; margin-bottom: 5px; }
-        .device-info { color: #bdc3c7; font-size: 13px; }
-        .status { color: #f1c40f; margin-bottom: 10px; font-size: 16px; font-weight: 500; }
-        .footer { margin-top: 30px; color: #555; font-size: 12px; }
+        .device-name { font-weight: bold; font-size: 16px; }
+        .device-info { color: #bdc3c7; font-size: 12px; }
+        .status { color: #f1c40f; margin-bottom: 10px; font-size: 14px; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Near My Devices</h1>
-        <div class="radar-box">
-            <div class="radar" id="radar" style="display: none;"></div>
-        </div>
-        <p class="status" id="status">Ready to discover nearby tech...</p>
+        <div class="radar" id="radar" style="display: none;"></div>
+        <p class="status" id="status">Ready to scan...</p>
         <button class="btn" onclick="startScan()">Start Scanning</button>
         
         <div id="deviceList">
             <!-- Devices will appear here -->
         </div>
-    </div>
-    
-    <div class="footer">
-        Powered by Web Bluetooth API • Secure Context Required
     </div>
 
     <script>
@@ -111,34 +91,30 @@
             }
 
             try {
-                status.innerText = "Listening for signals...";
+                status.innerText = "Scanning for devices...";
                 radar.style.display = "block";
 
-                // Requesting a device triggers the browser's native picker
+                // In Web Bluetooth, we must request a device for security
                 const device = await navigator.bluetooth.requestDevice({
                     acceptAllDevices: true
                 });
 
-                status.innerText = "Device Successfully Detected!";
+                status.innerText = "Device found!";
                 radar.style.display = "none";
 
                 const card = document.createElement('div');
                 card.className = 'device-card';
                 card.innerHTML = `
-                    <div class="device-name">${device.name || 'Unnamed Tech Device'}</div>
-                    <div class="device-info">Hardware ID: ${device.id}</div>
-                    <div class="device-info">Protocol: Bluetooth Low Energy</div>
-                    <div class="device-info">Detected at: ${new Date().toLocaleTimeString()}</div>
+                    <div class="device-name">${device.name || 'Unnamed Device'}</div>
+                    <div class="device-info">ID: ${device.id}</div>
+                    <div class="device-info">Type: Bluetooth LE</div>
                 `;
                 list.prepend(card);
 
             } catch (error) {
                 console.error(error);
-                status.innerText = "Scanner standby.";
+                status.innerText = "Scan cancelled or failed.";
                 radar.style.display = "none";
-                if(error.name !== "NotFoundError") {
-                    alert("Error: " + error.message);
-                }
             }
         }
     </script>
