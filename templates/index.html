@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Near My Devices - Web Scanner</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #121212;
+            color: white;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: #1e1e1e;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+        }
+        h1 { color: #3498db; }
+        .radar {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 2px solid #3498db;
+            margin: 20px auto;
+            position: relative;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 1; }
+            100% { transform: scale(1.5); opacity: 0; }
+        }
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 20px;
+        }
+        .btn:hover { background-color: #2980b9; }
+        #deviceList {
+            text-align: left;
+            margin-top: 20px;
+        }
+        .device-card {
+            background: #2c3e50;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 5px solid #3498db;
+        }
+        .device-name { font-weight: bold; font-size: 16px; }
+        .device-info { color: #bdc3c7; font-size: 12px; }
+        .status { color: #f1c40f; margin-bottom: 10px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Near My Devices</h1>
+        <div class="radar" id="radar" style="display: none;"></div>
+        <p class="status" id="status">Ready to scan...</p>
+        <button class="btn" onclick="startScan()">Start Scanning</button>
+        
+        <div id="deviceList">
+            <!-- Devices will appear here -->
+        </div>
+    </div>
+
+    <script>
+        async function startScan() {
+            const status = document.getElementById('status');
+            const radar = document.getElementById('radar');
+            const list = document.getElementById('deviceList');
+            
+            if (!navigator.bluetooth) {
+                alert("Web Bluetooth is not supported in this browser. Please use Chrome on Android or Desktop.");
+                return;
+            }
+
+            try {
+                status.innerText = "Scanning for devices...";
+                radar.style.display = "block";
+
+                // In Web Bluetooth, we must request a device for security
+                const device = await navigator.bluetooth.requestDevice({
+                    acceptAllDevices: true
+                });
+
+                status.innerText = "Device found!";
+                radar.style.display = "none";
+
+                const card = document.createElement('div');
+                card.className = 'device-card';
+                card.innerHTML = `
+                    <div class="device-name">${device.name || 'Unnamed Device'}</div>
+                    <div class="device-info">ID: ${device.id}</div>
+                    <div class="device-info">Type: Bluetooth LE</div>
+                `;
+                list.prepend(card);
+
+            } catch (error) {
+                console.error(error);
+                status.innerText = "Scan cancelled or failed.";
+                radar.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
